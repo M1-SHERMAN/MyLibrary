@@ -3,7 +3,7 @@
 
 /**
  * @file camera.h
- * @brief Defines the Camera class for handling camera movement and effects.
+ * @brief A Simple camera class for handling camera movement and effects based on vector2.
  *
  * This header file contains the Camera class, which provides functionality
  * for managing camera movement and effects in a game environment. The class
@@ -16,7 +16,6 @@
  * - Handling timer events for shake duration
  */
 
-#include "vector2.h"
 #include "vector2.h"
 #include "timer.h"
 

@@ -29,75 +29,81 @@ public:
 	// Constructor for initializing the vector with x and y coordinates
 	Vector2(double x, double y) : x(x), y(y) {}
 
-	// Addition operator: Returns a new Vector2 that is the sum of this vector and the given vector
+	// Addition
 	Vector2 operator+(const Vector2 &vec) const
 	{
 		return Vector2(x + vec.x, y + vec.y);
 	}
 
-	// Addition assignment operator: Adds the given vector to this vector
+	// Addition assignment
 	void operator+=(const Vector2 &vec)
 	{
 		x += vec.x;
 		y += vec.y;
 	}
 
-	// Subtraction operator: Returns a new Vector2 that is the difference between this vector and the given vector
+	// Subtraction
 	Vector2 operator-(const Vector2 &vec) const
 	{
 		return Vector2(x - vec.x, y - vec.y);
 	}
 
-	// Subtraction assignment operator: Subtracts the given vector from this vector
+	// Subtraction assignment
 	void operator-=(const Vector2 &vec)
 	{
 		x -= vec.x;
 		y -= vec.y;
 	}
 
-	// Dot product operator: Returns the dot product of this vector and the given vector
+	// Dot product
 	double operator*(const Vector2 &vec) const
 	{
 		return x * vec.x + y * vec.y;
 	}
 
-	// Scalar multiplication operator: Returns a new Vector2 that is this vector multiplied by the given scalar
+	// Scalar multiplication
 	Vector2 operator*(double val) const
 	{
 		return Vector2(x * val, y * val);
 	}
 
-	// Scalar multiplication assignment operator: Multiplies this vector by the given scalar
+	// Scalar multiplication assignment
 	void operator*=(double val)
 	{
 		x *= val, y *= val;
 	}
 
-	// Equality operator: Returns true if this vector is equal to the given vector
+	// Equality
 	bool operator==(const Vector2 &vec) const
 	{
 		return x == vec.x && y == vec.y;
 	}
 
-	// Greater than operator: Returns true if the length of this vector is greater than the length of the given vector
+	// Greater than
 	bool operator>(const Vector2 &vec) const
 	{
 		return length() > vec.length();
 	}
 
-	// Less than operator: Returns true if the length of this vector is less than the length of the given vector
+	// Less than
 	bool operator<(const Vector2 &vec) const
 	{
 		return length() < vec.length();
 	}
 
-	// Length function: Returns the length of this vector
+	// Get length
 	double length() const
 	{
 		return sqrt(x * x + y * y);
 	}
 
-	// Normalize function: Returns a new Vector2 that is this vector normalized
+	// Get distance
+	double distance(const Vector2 &vec) const
+	{
+		return (*this - vec).length();
+	}
+
+	// Normalization
 	Vector2 normalize() const
 	{
 		double len = length();
@@ -106,13 +112,11 @@ public:
 		return Vector2(x / len, y / len);
 	}
 
-	// Approximation check for zero vectors: Returns true if the length of this vector is less than 0.0001
+	// Approximation check for zero vectors
 	bool approx_zero() const
 	{
 		return length() < 0.0001;
 	}
-
-private:
 };
 
 #endif // !_VECTOR_H_
