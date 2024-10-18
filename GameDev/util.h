@@ -97,29 +97,45 @@ inline void draw_line(SDL_Renderer *renderer, const Camera &camera, int x1, int 
 }
 
 // sketch image
-inline void sketch_texture(SDL_Renderer *renderer, SDL_Texture *src, SDL_Texture *dst)
+inline void sketch_texture(SDL_Texture *src, SDL_Texture *dst)
 {
 	// Get the dimensions of the source texture
 	int w, h;
 	SDL_QueryTexture(src, NULL, NULL, &w, &h);
 
-	// Destroy the existing destination texture and create a new one with the same dimensions
-	SDL_DestroyTexture(dst);
-	dst = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+	// Create a new surface for the destination texture
+	SDL_Surface *dst_surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
 
-	// Set the rendering target to the destination texture
-	SDL_SetRenderTarget(renderer, dst);
-	// Set the draw color to white and clear the texture
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-	SDL_RenderClear(renderer);
+	// Lock the surfaces for pixel manipulation
+	SDL_Surface *src_surface = SDL_CreateRGBSurfaceFrom(NULL, w, h, 32, 0, 0, 0, 0, 0);
+	SDL_LockTexture(src, NULL, &src_surface->pixels, &src_surface->pitch);
+	SDL_LockSurface(dst_surface);
 
-	// Set the blend mode of the source texture to blend
-	SDL_SetTextureBlendMode(src, SDL_BLENDMODE_BLEND);
-	// Copy the source texture onto the destination texture
-	SDL_RenderCopy(renderer, src, NULL, NULL);
+	// Get pixel data
+	Uint32 *src_pixels = (Uint32 *)src_surface->pixels;
+	Uint32 *dst_pixels = (Uint32 *)dst_surface->pixels;
 
-	// Reset the rendering target to the default (window)
-	SDL_SetRenderTarget(renderer, NULL);
+	// Fill the destination surface with white
+	SDL_FillRect(dst_surface, NULL, SDL_MapRGBA(dst_surface->format, 255, 255, 255, 255));
+
+	// Copy pixels from source to destination
+	for (int i = 0; i < w * h; ++i)
+	{
+		Uint8 r, g, b, a;
+		SDL_GetRGBA(src_pixels[i], src_surface->format, &r, &g, &b, &a);
+		dst_pixels[i] = SDL_MapRGBA(dst_surface->format, r, g, b, a);
+	}
+
+	// Unlock surfaces
+	SDL_UnlockTexture(src);
+	SDL_UnlockSurface(dst_surface);
+
+	// Update the destination texture
+	SDL_UpdateTexture(dst, NULL, dst_surface->pixels, dst_surface->pitch);
+
+	// Free the temporary surface
+	SDL_FreeSurface(dst_surface);
+	SDL_FreeSurface(src_surface);
 }
 
 #endif // !_UTIL_H_
