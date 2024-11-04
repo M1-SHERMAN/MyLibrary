@@ -154,11 +154,6 @@ private:
 - New item types can be added by implementing `IItem`
 - New inventory systems can be easily added
 
-```cpp:GameDev/TinyShoppingSystem/README.md
-startLine: 77
-endLine: 94
-```
-
 ## 4. Key Learning Points Summary
 
 1. Interface Design Principles
