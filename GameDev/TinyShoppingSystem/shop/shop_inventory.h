@@ -1,7 +1,9 @@
 #ifndef SHOP_INVENTORY_H_
 #define SHOP_INVENTORY_H_
 
-#include "IInventory.h"
+#include "../interface/IInventory.h"
+#include "../interface/IItem.h"
+#include "../item/potion_type.h"
 
 #include <unordered_map>
 #include <iostream>
@@ -11,7 +13,11 @@ class ShopInventory : public IInventory
 private:
 	double current_money_{ 1000000 };
 	std::unordered_map<std::string, int> items_;
+	const std::unordered_map<std::string, std::unique_ptr<IItem>> &items_ptr_;
 public:
+	explicit ShopInventory(const std::unordered_map<std::string, std::unique_ptr<IItem>> &items)
+		: items_ptr_(items) {}
+
 	// no need to override add || remove item functions
 	// because we suppose that the shop has infinite items here
 	bool add_item(const std::string& item_id, int quantity) override { return true; }
@@ -33,8 +39,17 @@ public:
 
 	void display_inventory() const override
 	{
-		std::cout << "Shop inventory: (infinite)" << "\n";
-		std::cout << "Shop money: " << current_money_ << "\n";
+		std::cout << "Shop inventory: " << "\n";
+		std::cout << "Current money: " << get_current_money() << "\n";
+
+		for (const auto &item : items_ptr_)
+		{
+			std::cout << "name: " << item.second->get_name() << ", "
+					  << "quantity: " << get_item_quantity(item.first) << ", "
+					  << "type: " << potion_type_to_string(item.second->get_type()) << ", "
+					  << "buy price: " << item.second->get_buy_price() << ", "
+					  << "sell price: " << item.second->get_sell_price() << "\n";
+		}
 	}
 };
 

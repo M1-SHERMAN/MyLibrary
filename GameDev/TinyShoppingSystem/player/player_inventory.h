@@ -1,12 +1,12 @@
 #ifndef PLAYER_BACKPACK_H
 #define PLAYER_BACKPACK_H
 
-#include "IInventory.h"
+#include "../interface/IInventory.h"
 
 #include <unordered_map>
 #include <iostream>
 
-class PlayerBackpack : public IInventory
+class PlayerInventory : public IInventory
 {
 
 private:
@@ -69,7 +69,6 @@ public:
 						  << ", Quantity: " << item.second << "\n";
 			}
 		}
-		
 	}
 	
 };

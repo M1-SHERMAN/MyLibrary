@@ -1,6 +1,4 @@
-#include <iostream>
-
-#include "shop_manager.h"
+#include "shop/shop_manager.h"
 
 int main(int argc, char *argv[])
 {

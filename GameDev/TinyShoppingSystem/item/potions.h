@@ -2,7 +2,7 @@
 #define POTIONS_H_
 
 #include "potion_type.h"
-#include "IItem.h"
+#include "../interface/IItem.h"
 
 #include <string>
 #include <iostream>

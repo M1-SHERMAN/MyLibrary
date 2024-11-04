@@ -2,6 +2,7 @@
 #define SHOP_MANAGER_H_
 
 #include "shop.h"
+#include "../player/backpack_manager.h"
 
 #include <iostream>
 
@@ -9,6 +10,7 @@ class ShopManager
 {
 private:
 	Shop shop_;
+	BackpackManager backpack_manager_;
 	bool is_quit_ = false;
 	
 public:
@@ -70,7 +72,7 @@ public:
 				break;
 			}
 
-			if (shop_.buy_item("hp_potion", quantity))
+			if (shop_.buy_item("hp_potion", quantity, backpack_manager_.get_mutable_player_backpack()))
 			{
 				cout << "You have bought " << quantity << " HP potions" << "\n";
 			}
@@ -95,7 +97,7 @@ public:
 				cin.get();
 				break;
 			}
-			if (shop_.buy_item("mp_potion", quantity))
+			if (shop_.buy_item("mp_potion", quantity, backpack_manager_.get_mutable_player_backpack()))
 			{
 				cout << "You have bought " << quantity << " MP potions" << "\n";
 			}
@@ -120,7 +122,7 @@ public:
 				cin.get();
 				break;
 			}
-			if (shop_.sell_item("hp_potion", quantity))
+			if (shop_.sell_item("hp_potion", quantity, backpack_manager_.get_mutable_player_backpack()))
 			{
 				cout << "You have sold " << quantity << " HP potions" << "\n";
 			}
@@ -145,7 +147,7 @@ public:
 				cin.get();
 				break;
 			}
-			if (shop_.sell_item("mp_potion", quantity))
+			if (shop_.sell_item("mp_potion", quantity, backpack_manager_.get_mutable_player_backpack()))
 			{
 				cout << "You have sold " << quantity << " MP potions" << "\n";
 			}
@@ -159,14 +161,14 @@ public:
 			cin.get();
 			break;
 		case 5:
-			shop_.display_inventory();
+			shop_.get_shop_inventory()->display_inventory();
 			
 			cout << "Press any key to continue...\n";
 			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			cin.get();
 			break;
 		case 6:
-			shop_.get_player_backpack()->display_inventory();
+			backpack_manager_.get_player_backpack()->display_inventory();
 
 			cout << "Press any key to continue...\n";
 			cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
