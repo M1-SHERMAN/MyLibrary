@@ -24,27 +24,27 @@ public:
 		  buy_price_(buy_price),
 		  sell_price_(buy_price * 0.75) {}
 
-	std::string get_name() const override
+	[[nodiscard]] std::string get_name() const override
 	{
 		return name_;
 	}
 
-	std::string get_id() const override
+	[[nodiscard]] std::string get_id() const override
 	{
 		return id_;
 	}
 
-	potion_type get_type() const override
+	[[nodiscard]] potion_type get_type() const override
 	{
 		return type_;
 	}
 
-	double get_buy_price() const override
+	[[nodiscard]] double get_buy_price() const override
 	{
 		return buy_price_;
 	}
 
-	double get_sell_price() const override
+	[[nodiscard]] double get_sell_price() const override
 	{
 		return sell_price_;
 	}

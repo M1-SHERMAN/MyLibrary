@@ -1,93 +1,194 @@
-# System Architecture Overview
+# Tiny Shopping System - Learning Project
 
-This is a simple potion shop system, built for learning purposes.
-The system implements a potion shop using interface-based communication between components.
+This is a simple shopping system built for learning purposes.
 
-The core interfaces are:
+## 1. Interface Design & Dependency Injection
 
-- `ITradeSystem`: Handles trading operations
-- `IInventory`: Manages inventory and money
-- `IItem`: Defines item properties
+### 1.1 Core Interfaces
 
-# Interface Communication Flow
+The system defines three main interfaces:
 
-## 1. Shop to Inventory Communication
+- `ITradeSystem`: Trading operations interface
 
-The `Shop` class communicates with player's inventory through the `IInventory` interface:
-
-```cpp:GameDev/TinyShoppingSystem/shop.h
-class Shop : public ITradeSystem {
-private:
-    std::unique_ptr<IInventory> inventory_;  // Composition using interface
-    // ... other members ...
-}
-```
-
-Key interactions:
-
-- Money management: `get_current_money()`, `set_current_money()`
-- Item management: `add_item()`, `remove_item()`
-
-## 2. Shop to Items Communication
-
-Items are accessed through the `IItem` interface:
-
-```cpp:GameDev/TinyShoppingSystem/shop.h
-private:
-    std::unordered_map<std::string, std::unique_ptr<IItem>> items_;
-```
-
-Key interactions:
-
-- Price queries: `get_buy_price()`, `get_sell_price()`
-- Item information: `get_name()`, `get_id()`, `get_type()`
-
-## 3. Trading System Interface
-
-The shop implements `ITradeSystem` to standardize trading operations:
-
-```cpp:GameDev/TinyShoppingSystem/ITradeSystem.h
-class ITradeSystem {
+```6:13:GameDev/TinyShoppingSystem/ITradeSystem.h
+class ITradeSystem
+{
 public:
+    virtual ~ITradeSystem() = default;
     virtual bool buy_item(const std::string &item_id, int quantity) = 0;
     virtual bool sell_item(const std::string &item_id, int quantity) = 0;
     virtual void display_inventory() const = 0;
 };
 ```
 
-# Benefits of Interface-Based Design
+- `IInventory`: Inventory management interface
 
-1. **Loose Coupling**
-
-   - `Shop` class doesn't depend on concrete implementations
-   - Easy to swap implementations (e.g., different inventory systems)
-
-2. **Extensibility**
-
-   - New item types can be added by implementing `IItem`
-   - Different inventory systems can be created by implementing `IInventory`
-
-3. **Testability**
-   - Interfaces can be mocked for unit testing
-   - Components can be tested in isolation
-
-# Implementation Example
-
-Adding a new potion type:
-
-```cpp
-// 1. Add new type to enum
-enum class potion_type {
-    mp_potion,
-    hp_potion,
-    stamina_potion  // New type
+```6:16:GameDev/TinyShoppingSystem/IInventory.h
+class IInventory
+{
+public:
+    virtual ~IInventory() = default;
+    virtual bool add_item(const std::string &item_id, int quantity) = 0;
+    virtual bool remove_item(const std::string &item_id, int quantity) = 0;
+    [[nodiscard]] virtual int get_item_quantity(const std::string &item_id) const = 0;
+    [[nodiscard]] virtual double get_current_money() const = 0;
+    virtual bool set_current_money(double money) = 0;
+    virtual void display_inventory() const = 0;
 };
-
-// 2. Create potion instance
-items_["stamina_potion"] = std::make_unique<Potion>(
-    "Stamina Potion",
-    "stamina_potion",
-    potion_type::stamina_potion,
-    200.0
-);
 ```
+
+- `IItem`: Item properties interface
+
+```6:15:GameDev/TinyShoppingSystem/IItem.h
+class IItem
+{
+public:
+    virtual ~IItem() = default;
+    [[nodiscard]] virtual std::string get_name() const = 0;
+    [[nodiscard]] virtual std::string get_id() const = 0;
+    [[nodiscard]] virtual potion_type get_type() const = 0;
+    [[nodiscard]] virtual double get_buy_price() const = 0;
+    [[nodiscard]] virtual double get_sell_price() const = 0;
+};
+```
+
+### 1.2 Dependency Injection Implementation
+
+The `Shop` class uses smart pointers and interfaces for dependency injection:
+
+```15:18:GameDev/TinyShoppingSystem/shop.h
+private:
+	std::unique_ptr<IInventory> shop_inventory_;
+	std::unique_ptr<IInventory> player_inventory_;
+	std::unordered_map<std::string, std::unique_ptr<IItem>> items_;
+```
+
+## 2. Modern C++ Features
+
+### 2.1 Smart Pointers
+
+- Using `std::unique_ptr` for automatic resource management
+- Preventing memory leaks
+
+```21:26:GameDev/TinyShoppingSystem/shop.h
+	Shop()
+	{
+		shop_inventory_ = std::make_unique<ShopInventory>();
+		player_inventory_ = std::make_unique<PlayerBackpack>();
+		initialize_items();
+	}
+```
+
+### 2.2 Override Keyword
+
+- Explicitly marking virtual function overrides
+- Preventing accidental signature mismatches
+
+```27:50:GameDev/TinyShoppingSystem/potions.h
+	[[nodiscard]] std::string get_name() const override
+	{
+		return name_;
+	}
+
+	[[nodiscard]] std::string get_id() const override
+	{
+		return id_;
+	}
+
+	[[nodiscard]] potion_type get_type() const override
+	{
+		return type_;
+	}
+
+	[[nodiscard]] double get_buy_price() const override
+	{
+		return buy_price_;
+	}
+
+	[[nodiscard]] double get_sell_price() const override
+	{
+		return sell_price_;
+	}
+```
+
+### 2.3 [[nodiscard]] Attribute
+
+- Ensuring return values are not ignored
+
+```12:13:GameDev/TinyShoppingSystem/IInventory.h
+    [[nodiscard]] virtual int get_item_quantity(const std::string &item_id) const = 0;
+    [[nodiscard]] virtual double get_current_money() const = 0;
+```
+
+### 2.4 Const Member Functions
+
+- Guaranteeing function won't modify object state
+
+```104:117:GameDev/TinyShoppingSystem/shop.h
+	void display_inventory() const override
+	{
+		std::cout << "Shop inventory: " << "\n";
+		std::cout << "Current money: " << shop_inventory_->get_current_money() << "\n";
+
+		for (const auto &item : items_)
+		{
+			std::cout << "name: " << item.second->get_name() << ", "
+					  << "quantity: " << shop_inventory_->get_item_quantity(item.first) << ", "
+					  << "type: " << potion_type_to_string(item.second->get_type()) << ", "
+					  << "buy price: " << item.second->get_buy_price() << ", "
+					  << "sell price: " << item.second->get_sell_price() << "\n";
+		}
+	}
+```
+
+## 3. System Architecture Features
+
+### 3.1 Loose Coupling
+
+- Component decoupling through interface separation
+- Easy implementation swapping
+- Facilitates unit testing
+
+### 3.2 Extensibility
+
+- New item types can be added by implementing `IItem`
+- New inventory systems can be easily added
+
+```cpp:GameDev/TinyShoppingSystem/README.md
+startLine: 77
+endLine: 94
+```
+
+## 4. Key Learning Points Summary
+
+1. Interface Design Principles
+
+   - Interface Segregation
+   - Dependency Inversion
+   - Programming to Interfaces
+
+2. Modern C++ Best Practices
+
+   - Resource management with smart pointers
+   - Explicit function semantics
+   - Const correctness
+
+3. Object-Oriented Design
+
+   - Composition over inheritance
+   - Interface-based polymorphism
+   - Single Responsibility Principle
+
+4. Implementation Examples
+   - Clean separation of concerns
+   - Type-safe enum classes
+   - RAII principles through smart pointers
+
+This project demonstrates practical application of modern C++ features and solid design principles, making it an excellent learning reference.
+
+The system's modular design allows for:
+
+- Easy addition of new potion types
+- Simple implementation of new inventory systems
+- Straightforward testing through interface mocking
+- Clear separation between business logic and UI

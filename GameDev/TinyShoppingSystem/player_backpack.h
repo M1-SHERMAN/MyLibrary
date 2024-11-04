@@ -4,6 +4,7 @@
 #include "IInventory.h"
 
 #include <unordered_map>
+#include <iostream>
 
 class PlayerBackpack : public IInventory
 {
@@ -33,13 +34,13 @@ public:
 		return true;
 	}
 
-	int get_item_quantity(const std::string &item_id) const override
+	[[nodiscard]] int get_item_quantity(const std::string &item_id) const override
 	{
-		auto it = items_.find(item_id);
+		const auto it = items_.find(item_id);
 		return it != items_.end() ? it->second : 0;
 	}
 
-	double get_current_money() const override
+	[[nodiscard]] double get_current_money() const override
 	{
 		return current_money_;
 	}
@@ -53,5 +54,23 @@ public:
 		current_money_ += money;
 		return true;
 	}
+
+	void display_inventory() const override
+	{
+		std::cout << "Your backpack: " << "\n";
+		std::cout << "Current money: " << current_money_ << "\n";
+
+		std::cout << "Current items: " << "\n";
+		for (const auto &item : items_)
+		{
+			if(item.second > 0)
+			{
+				std::cout << "Item: " << item.first
+						  << ", Quantity: " << item.second << "\n";
+			}
+		}
+		
+	}
+	
 };
 #endif // PLAYER_BACKPACK_H
