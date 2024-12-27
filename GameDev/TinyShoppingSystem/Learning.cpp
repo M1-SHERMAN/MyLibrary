@@ -1,9 +1,9 @@
 #include "shop/shop_manager.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	ShopManager shop_manager;
 	shop_manager.run();
-	
+
 	return 0;
 }
